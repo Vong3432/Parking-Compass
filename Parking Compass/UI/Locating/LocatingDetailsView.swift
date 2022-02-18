@@ -37,7 +37,19 @@ struct LocatingDetailsView: View {
                 
                 Spacer()
                 
-                Text(floor)
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack {
+                        Image(systemName: "car.fill")
+                            .font(.title2)
+                        Text("My vehicle")
+                            .font(.title2)
+                            .fontWeight(.heavy)
+                        Spacer()
+                    }
+                    
+                    Text("Location: \(vm.address)")
+                    Text("Floor: \(floor)")
+                }.padding([.horizontal, .top])
                 
                 Button {
                     //
@@ -45,9 +57,9 @@ struct LocatingDetailsView: View {
                     dismiss()
                 } label: {
                     Text("Clear")
+                        .frame(maxWidth: .infinity)
                         .padding()
                 }
-                .frame(maxWidth: .infinity)
                 .background(Color.theme.red)
                 .foregroundStyle(.background)
                 .cornerRadius(12)

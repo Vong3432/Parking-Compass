@@ -19,7 +19,9 @@ struct HomeView: View {
     var body: some View {
         VStack {
             NavigationLink(tag: "Details", selection: $vm.tag) {
-                LocatingDetailsView(parkingLocation: vm.savedLocation, locatingStatusService: vm.locatingStatusService)
+                if let savedLocation = vm.savedLocation {
+                    LocatingDetailsView(parkingLocation: savedLocation, locatingStatusService: vm.locatingStatusService)
+                }
             } label: {
                 EmptyView()
             }
@@ -36,13 +38,18 @@ struct HomeView: View {
                 LocationButton(.currentLocation) {
                     vm.save()
                 }
+                .font(.body)
                 .foregroundColor(.white)
                 .tint(Color.theme.primary)
                 .symbolVariant(.fill)
                 .labelStyle(.titleAndIcon)
-                .cornerRadius(10)
+                .cornerRadius(50)
+                .padding(.bottom)
+                .padding(.bottom)
             }
+            
         }
+        .animation(.spring(), value: vm.currentAddress)
         .padding([.vertical])
     }
     

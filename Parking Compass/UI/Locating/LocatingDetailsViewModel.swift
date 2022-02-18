@@ -16,6 +16,7 @@ extension LocatingDetailsView {
 //        @Published var userTrackingMode: MapUserTrackingMode = .follow
 //        @Published var places = [Location]()
         @Published private(set) var userLocation: CLLocation = CLLocation()
+        @Published private(set) var address = ""
         
         private var locatingStatusService: LocatingStatusServiceProtocol
         
@@ -32,6 +33,13 @@ extension LocatingDetailsView {
                 .sink { [weak self] location in
                     guard let location = location else { return }
                     self?.userLocation = location
+                    
+                    location.getAddress { address, error in
+                        guard let address = address else {
+                            return
+                        }
+                        self?.address = address
+                    }
                 }
                 .store(in: &cancellable)
         }

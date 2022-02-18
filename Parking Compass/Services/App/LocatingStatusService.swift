@@ -122,6 +122,7 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
         locatingStatus = .idle
         
         UserDefaults.standard.removeObject(forKey: .savedLocationKey)
+//        print("Cleared:", UserDefaults.standard.data(forKey: .savedLocationKey))
     }
     
     func saveLocation() {
