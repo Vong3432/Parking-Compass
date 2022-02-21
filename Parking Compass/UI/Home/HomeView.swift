@@ -26,7 +26,7 @@ struct HomeView: View {
                 EmptyView()
             }
             
-            if vm.currentAddress.isNotEmpty {
+            if vm.savedLocation != nil {
                 savedParkingLocation
             }
             permissionList
@@ -34,7 +34,7 @@ struct HomeView: View {
             
             Spacer()
             
-            if vm.currentAddress.isEmpty {
+            if vm.savedLocation == nil {
                 LocationButton(.currentLocation) {
                     vm.save()
                 }
@@ -49,7 +49,7 @@ struct HomeView: View {
             }
             
         }
-        .animation(.spring(), value: vm.currentAddress)
+        .animation(.spring(), value: vm.savedLocation)
         .padding([.vertical])
     }
     
@@ -102,8 +102,8 @@ extension HomeView {
                         .font(.headline)
                         .fontWeight(.bold)
                     
-                    Text(vm.currentAddress)
-                        .font(.caption)
+//                    Text(vm.currentAddress)
+//                        .font(.caption)
                 }
                 
                 Spacer()
@@ -170,7 +170,7 @@ extension HomeView {
             Text("About Parking Compass")
                 .font(.subheadline)
                 .foregroundColor(Color.theme.secondaryText)
-            Text("Parking Compass will use Bluetooth or Location to help you record down where you parked. Using low-battery consumption bluetooth will allow you to record your vehicle location broadly. To have a more precise result, use Location instead.")
+            Text("Parking Compass will Location to help you record down where you parked. It is recommended to use Map for outdoor, and Compass for indoor building that has levels such as shopping mall")
                 .font(.footnote)
         }.padding()
     }

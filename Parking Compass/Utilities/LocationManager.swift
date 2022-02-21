@@ -13,6 +13,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let locationManager: CLLocationManager
     
     @Published private(set) var lastLocation: CLLocation?
+    @Published private(set) var heading: CLHeading?
     @Published private(set) var authorizationStatus: CLAuthorizationStatus
     
     override init() {
@@ -25,12 +26,29 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
     
+    func headingAvailable() -> Bool {
+        return CLLocationManager.headingAvailable()
+    }
+    
     func requestPermission() {
         self.locationManager.requestAlwaysAuthorization()
     }
     
+    func changeAccuracy(to accuracy: CLLocationAccuracy) {
+        locationManager.desiredAccuracy = accuracy
+    }
+    
     func getCurrentLocation() {
+        changeAccuracy(to: kCLLocationAccuracyNearestTenMeters)
         self.locationManager.requestLocation()
+    }
+    
+    func startUpdatingHeading() {
+        self.locationManager.startUpdatingHeading()
+    }
+    
+    func stopUpdatingHeading() {
+        self.locationManager.stopUpdatingHeading()
     }
     
     func startUpdating() {
@@ -52,13 +70,30 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            print("New location is \(location)")
-            lastLocation = location
+        
+        guard let location = locations.first else { return }
+        
+        if lastLocation == nil { return lastLocation = location }
+        else {
+            /// https://stackoverflow.com/a/24876562/10868150
+            let computedDistance = location.distance(from: lastLocation!)
+            
+            // over 70m will be useless to compare with horizontalAccuracy
+            guard computedDistance < 70 else { return lastLocation = location}
+            
+            if computedDistance >= location.horizontalAccuracy * 0.05 {
+                // update if it is over
+                lastLocation = location
+            }
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error.localizedDescription)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        print("New heading is \(newHeading)")
+        heading = newHeading
     }
 }

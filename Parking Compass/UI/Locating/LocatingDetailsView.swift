@@ -32,8 +32,12 @@ struct LocatingDetailsView: View {
         ZStack {
             
             VStack {
-                mapView
-                    .edgesIgnoringSafeArea(.top)
+                
+                if vm.isMapView {
+                    mapView
+                } else {
+                    compassView
+                }
                 
                 Spacer()
                 
@@ -52,9 +56,7 @@ struct LocatingDetailsView: View {
                 }.padding([.horizontal, .top])
                 
                 Button {
-                    //
-                    vm.stopSubscribing()
-                    dismiss()
+                    vm.showAlert()
                 } label: {
                     Text("Clear")
                         .frame(maxWidth: .infinity)
@@ -64,24 +66,58 @@ struct LocatingDetailsView: View {
                 .foregroundStyle(.background)
                 .cornerRadius(12)
                 .padding()
-
+                
             }.padding(.bottom)
+        }
+        .alert("Confirm to clear?", isPresented: $vm.showingAlert) {
+            Button("Clear", role: .destructive) {
+                vm.clearSavedParkingLocation()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel, action: {})
+        }
+        .toolbar {
+            toolbarItems
+        }
+        .onDisappear {
+            vm.stopSubscribing()
         }
     }
 }
 
 struct LocatingDetailsView_Previews: PreviewProvider {
     static var previews: some View {
-        LocatingDetailsView(parkingLocation: CLLocation(latitude: 1.49229000, longitude: 103.58795000), locatingStatusService: LocatingStatusService(locationManager: LocationManager()))
+        NavigationView {
+            LocatingDetailsView(parkingLocation: CLLocation(latitude: 1.49229000, longitude: 103.58795000), locatingStatusService: LocatingStatusService(locationManager: LocationManager()))
+        }
     }
 }
 
 extension LocatingDetailsView {
+    
+    private var compassView: some View {
+        VStack(spacing: 18) {
+            if let distance = vm.distance {
+                Image(systemName: "arrow.up")
+                    .font(.title)
+                    .rotationEffect(vm.degrees)
+                    .animation(.linear, value: vm.degrees)
+                Text("Distance: \(distance.formatted()) km")
+                    .font(.largeTitle)
+            } else {
+                Text("Unable to calculate distance")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
     private var mapView: some View {
         MapView(
             userLocation: vm.userLocation,
             parkingLocation: parkingLocation
-        ).frame(maxHeight: .infinity)
+        )
+            .frame(maxHeight: .infinity)
+            .edgesIgnoringSafeArea(.top)
         //        Map(
         //            coordinateRegion: $vm.region,
         //            interactionModes: .all,
@@ -99,25 +135,26 @@ extension LocatingDetailsView {
         //        }
     }
     
-    //    private var toolbarItems: some ToolbarContent {
-    //        Group {
-    //            ToolbarItem(placement: .navigationBarTrailing) {
-    //                Button(action: {
-    //                    vm.changeView(isMap: true)
-    //                }) {
-    //                    Image(systemName: "map.fill")
-    //                }
-    //                .tint(vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
-    //                .opacity(vm.locatingStatusService.locatingStatus == .locating ? 1 : 0)
-    //            }
-    //            ToolbarItem(placement: .navigationBarTrailing) {
-    //                Button(action: {
-    //                    vm.changeView(isMap: false)} ) {
-    //                        Image(systemName: "figure.walk.circle.fill")
-    //                    }
-    //                    .tint(!vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
-    //                    .opacity(vm.locatingStatusService.locatingStatus == .locating ? 1 : 0)
-    //            }
-    //        }
-    //    }
+    private var toolbarItems: some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    vm.changeView(isMap: true)
+                }) {
+                    Image(systemName: "map.fill")
+                }
+                .tint(vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if vm.headingAvailable {
+                    Button(action: {
+                        vm.changeView(isMap: false)} ) {
+                            Image(systemName: "figure.walk.circle.fill")
+                        }
+                        .tint(!vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
+                }
+            }
+        }
+    }
 }

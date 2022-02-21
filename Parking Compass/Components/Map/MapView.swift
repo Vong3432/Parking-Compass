@@ -45,7 +45,11 @@ struct MapView: UIViewRepresentable {
     func draw(_ mapView: UIViewType) {
         // drawing
         let userPlacemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude))
-        let parkingPlacemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 1.492290, longitude: 103.584049))
+        
+        /// Uncomment for testing
+        //  let dummyPlacemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 1.492290, longitude: 103.584049))
+        
+        let parkingPlacemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: parkingLocation.coordinate.latitude, longitude: parkingLocation.coordinate.longitude))
         
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: userPlacemark)
@@ -65,6 +69,10 @@ struct MapView: UIViewRepresentable {
         let directions = MKDirections(request: request)
         directions.calculate { response, error in
             guard let route = response?.routes.first else { return }
+            
+            // clear
+            mapView.removeAnnotations(mapView.annotations)
+            
             mapView.addAnnotations([userAnnotation, parkingAnnotation])
             mapView.addOverlay(route.polyline)
             mapView.setVisibleMapRect(

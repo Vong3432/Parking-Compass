@@ -19,7 +19,6 @@ struct CustomCLLocation: Codable {
     let timestamp: Date
 }
 
-
 extension CLLocation: Encodable {
     
     convenience init(model: CustomCLLocation) {
@@ -82,3 +81,15 @@ extension CLLocation: Encodable {
     }
 }
 
+extension CLLocationDirection {
+    var toRadians : Self {
+        var m = Measurement(value: self, unit: UnitAngle.degrees)
+        m.convert(to: .radians)
+        return m.value
+    }
+    var toDegrees : Self {
+        var m = Measurement(value: self, unit: UnitAngle.radians)
+        m.convert(to: .degrees)
+        return m.value
+    }
+}

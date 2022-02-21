@@ -18,7 +18,7 @@ extension HomeView {
         @Published private(set) var locatingStatus = LocatingStatus.idle
         
         @Published private(set) var savedLocation: CLLocation?
-        @Published private(set) var currentAddress = ""
+//        @Published private(set) var currentAddress = ""
         @Published var tag: String? = nil
         
         var locatingStatusService: LocatingStatusServiceProtocol
@@ -26,8 +26,8 @@ extension HomeView {
         
         init(locatingStatusService: LocatingStatusServiceProtocol) {
             self.locatingStatusService = locatingStatusService
-            preset()
             subscribeLocatingStatus()
+            preset()
         }
         
         private func subscribeLocatingStatus() {
@@ -43,13 +43,13 @@ extension HomeView {
             locatingStatus = locatingStatusService.locatingStatus
             
             // load local data
-            if let data = UserDefaults.standard.data(forKey: .savedLocationKey) {
+            if let data = try? FileManager.decode(Data.self, from: .savedLocationKey) {
                 do {
                     let customCLLocation = try JSONDecoder().decode(CustomCLLocation.self, from: data)
-                    print("OK")
                     let clLocation = CLLocation(model: customCLLocation)
                     self.savedLocation = clLocation
-                    self.setCurrentAddress(of: clLocation)
+                    self.locatingStatus = .saving
+//                    self.setCurrentAddress(of: clLocation)
                 } catch let error {
                     print(error.localizedDescription)
                 }
@@ -67,36 +67,31 @@ extension HomeView {
             
             switch locatingStatus {
             case .idle:
-                self.currentAddress = ""
-                print("idle")
+//                self.currentAddress = ""
+                self.savedLocation = nil
             case .saving:
-                print("saving stat")
                 guard let location = location else {
                     return
                 }
-                
+
                 self.savedLocation = location
-                self.setCurrentAddress(of: location)
                 
                 if let data = try? JSONEncoder().encode(location) {
-                    UserDefaults.standard.set(data, forKey: .savedLocationKey)
+                    try? FileManager.encode(data, to: .savedLocationKey)
                 }
-                
-                print("saving end")
             case .locating:
-                self.tag = "Details"
                 print("locating")
             }
         }
         
-        private func setCurrentAddress(of location: CLLocation) {
-            location.getAddress { address, error in
-                guard let address = address else {
-                    return
-                }
-                self.currentAddress = address
-            }
-        }
+//        private func setCurrentAddress(of location: CLLocation) {
+//            location.getAddress { address, error in
+//                guard let address = address else {
+//                    return
+//                }
+//                self.currentAddress = address
+//            }
+//        }
         
         func save() {
             locatingStatusService.saveLocation()
@@ -104,6 +99,7 @@ extension HomeView {
         
         func locate() {
             locatingStatusService.locateLocation()
+            tag = "Details"
         }
     }
 }

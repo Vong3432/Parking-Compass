@@ -35,17 +35,25 @@ protocol LocatingStatusServiceProtocol {
     var currentLocationPublished: Published<CLLocation?> { get }
     var currentLocationPublisher: Published<CLLocation?>.Publisher { get }
     
+    var currentHeading: CLHeading? { get }
+    var currentHeadingPublished: Published<CLHeading?> { get }
+    var currentHeadingPublisher: Published<CLHeading?>.Publisher { get }
+    
     var isLocationEnabled: Bool { get }
     var isLocationEnabledPublished: Published<Bool> { get }
     var isLocationEnabledPublisher: Published<Bool>.Publisher { get }
     
     func requestLocation() -> Void
+    func startUpdatingHeading() -> Void
+    func stopUpdatingHeading() -> Void
     func startUpdating() -> Void
     func stopUpdating() -> Void
     func clearLocation() -> Void
-//    func changeLocation(to location: CLLocation?) -> Void
+    //    func changeLocation(to location: CLLocation?) -> Void
     func saveLocation() -> Void
     func locateLocation() -> Void
+    
+    func headingAvailable() -> Bool
 }
 
 class LocatingStatusService: LocatingStatusServiceProtocol {
@@ -60,21 +68,32 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
     var currentLocationPublished: Published<CLLocation?> { _currentLocation }
     var currentLocationPublisher: Published<CLLocation?>.Publisher { $currentLocation }
     
+    @Published private(set) var currentHeading: CLHeading?
+    var currentHeadingPublished: Published<CLHeading?> { _currentHeading }
+    var currentHeadingPublisher: Published<CLHeading?>.Publisher { $currentHeading }
+    
     @Published private(set) var isLocationEnabled: Bool = false
     var isLocationEnabledPublished: Published<Bool> { _isLocationEnabled }
     var isLocationEnabledPublisher: Published<Bool>.Publisher { $isLocationEnabled }
     
     private var locationManager: LocationManager
     private var cancellables = Set<AnyCancellable>()
+    private var isHeadingAvailable = false
     
     init(locationManager: LocationManager) {
         self.locationManager = locationManager
         self.locationManager.requestPermission()
+        isHeadingAvailable = locationManager.headingAvailable()
         
         subscribeLocationManager()
     }
     
+    func headingAvailable() -> Bool {
+        isHeadingAvailable
+    }
+    
     func subscribeLocationManager() {
+        // location
         locationManager.$lastLocation
             .combineLatest(locationManager.$authorizationStatus)
             .sink { [weak self] (location, status) in
@@ -100,29 +119,47 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
         locationManager.stopUpdating()
     }
     
+    func startUpdatingHeading() {
+        locationManager.startUpdatingHeading()
+        
+        // heading
+        locationManager.$heading
+            .sink { [weak self] (newHeading) in
+                guard let newHeading = newHeading else { return }
+                
+                self?.currentHeading = newHeading
+            }
+            .store(in: &cancellables)
+    }
+    
+    func stopUpdatingHeading() {
+        locationManager.stopUpdatingHeading()
+    }
+    
     func requestLocation() -> Void {
         locationManager.getCurrentLocation()
     }
     
-//    func changeLocation(to location: CLLocation? = nil) {
-//        if location != nil {
-//            self.currentLocation = location
-//            return
-//        }
-//
-//        if locationManager.authorizationStatus != .authorizedAlways || locationManager.authorizationStatus != .authorizedWhenInUse {
-//            return
-//        }
-//        locationManager.getCurrentLocation()
-//    }
+    //    func changeLocation(to location: CLLocation? = nil) {
+    //        if location != nil {
+    //            self.currentLocation = location
+    //            return
+    //        }
+    //
+    //        if locationManager.authorizationStatus != .authorizedAlways || locationManager.authorizationStatus != .authorizedWhenInUse {
+    //            return
+    //        }
+    //        locationManager.getCurrentLocation()
+    //    }
     
     func clearLocation() {
         currentLocation = nil
-        locationManager.stopUpdating()
+        stopUpdating()
+        stopUpdatingHeading()
         locatingStatus = .idle
         
-        UserDefaults.standard.removeObject(forKey: .savedLocationKey)
-//        print("Cleared:", UserDefaults.standard.data(forKey: .savedLocationKey))
+        try? FileManager.default.removeItem(at: FileManager.getDocumentsDirectory().appendingPathComponent(.savedLocationKey))
+        //        print("Cleared:", UserDefaults.standard.data(forKey: .savedLocationKey))
     }
     
     func saveLocation() {
@@ -131,6 +168,7 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
     }
     
     func locateLocation() {
+        locationManager.changeAccuracy(to: kCLLocationAccuracyBest)
         locatingStatus = .locating
     }
 }
