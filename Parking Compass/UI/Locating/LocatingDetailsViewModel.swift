@@ -37,6 +37,28 @@ extension LocatingDetailsView {
             subscribeToLocatingStatusService()
         }
         
+        func stopSubscribing() {
+            if !isMapView { locatingStatusService.stopUpdatingHeading() }
+            locatingStatusService.stopUpdating()
+        }
+        
+        func clearSavedParkingLocation() {
+            locatingStatusService.clearLocation()
+        }
+        
+        func changeView(isMap value: Bool) {
+            withAnimation(.spring()) {
+                isMapView = value
+            }
+            
+            if !value { subscribeToHeading() }
+            else { locatingStatusService.stopUpdatingHeading() }
+        }
+        
+        func showAlert() {
+            showingAlert.toggle()
+        }
+        
         private func subscribeToHeading() {
             locatingStatusService.startUpdatingHeading()
             
@@ -70,7 +92,8 @@ extension LocatingDetailsView {
                         self.calculateDistanceWithCoordinateAltitude(from: location, destination: self.parkingLocation)
                     }
                     
-                    location.getAddress { address, error in
+                    self.parkingLocation.getAddress { address, error in
+
                         guard let address = address else {
                             return
                         }
@@ -78,28 +101,6 @@ extension LocatingDetailsView {
                     }
                 }
                 .store(in: &cancellable)
-        }
-        
-        func stopSubscribing() {
-            if !isMapView { locatingStatusService.stopUpdatingHeading() }
-            locatingStatusService.stopUpdating()
-        }
-        
-        func clearSavedParkingLocation() {
-            locatingStatusService.clearLocation()
-        }
-        
-        func changeView(isMap value: Bool) {
-            withAnimation(.spring()) {
-                isMapView = value
-            }
-            
-            if !value { subscribeToHeading() }
-            else { locatingStatusService.stopUpdatingHeading() }
-        }
-        
-        func showAlert() {
-            showingAlert.toggle()
         }
         
         private func calculateDistanceWithCoordinateAltitude(from: CLLocation, destination: CLLocation) {

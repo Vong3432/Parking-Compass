@@ -43,6 +43,9 @@ protocol LocatingStatusServiceProtocol {
     var isLocationEnabledPublished: Published<Bool> { get }
     var isLocationEnabledPublisher: Published<Bool>.Publisher { get }
     
+    var locationManager: LocationManager { get }
+    var isHeadingAvailable: Bool { get }
+    
     func requestLocation() -> Void
     func startUpdatingHeading() -> Void
     func stopUpdatingHeading() -> Void
@@ -76,9 +79,9 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
     var isLocationEnabledPublished: Published<Bool> { _isLocationEnabled }
     var isLocationEnabledPublisher: Published<Bool>.Publisher { $isLocationEnabled }
     
-    private var locationManager: LocationManager
+    internal var locationManager: LocationManager
     private var cancellables = Set<AnyCancellable>()
-    private var isHeadingAvailable = false
+    internal var isHeadingAvailable = false
     
     init(locationManager: LocationManager) {
         self.locationManager = locationManager
