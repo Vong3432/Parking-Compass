@@ -12,6 +12,7 @@ import Combine
 
 extension LocatingDetailsView {
     @MainActor class LocatingDetailsViewModel: ObservableObject {
+        
         @Published private(set) var isMapView = true // default must true, otherwise will show compassView for devices that don't support heading
         @Published private(set) var userLocation: CLLocation = CLLocation()
         @Published private(set) var address = ""
@@ -20,7 +21,6 @@ extension LocatingDetailsView {
         @Published private(set) var degrees = Angle.zero
         @Published private(set) var heading: CLHeading?
         @Published private(set) var headingAvailable = false
-        @Published var showingAlert = false
         
         private var locatingStatusService: LocatingStatusServiceProtocol
         
@@ -53,10 +53,6 @@ extension LocatingDetailsView {
             
             if !value { subscribeToHeading() }
             else { locatingStatusService.stopUpdatingHeading() }
-        }
-        
-        func showAlert() {
-            showingAlert.toggle()
         }
         
         private func subscribeToHeading() {

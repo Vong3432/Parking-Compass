@@ -13,6 +13,7 @@ struct LocatingDetailsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: LocatingDetailsViewModel
     let parkingLocation: CLLocation
+    @State var showingAlert = false
     
     init(parkingLocation: CLLocation, locatingStatusService: LocatingStatusServiceProtocol) {
         self.parkingLocation = parkingLocation
@@ -56,7 +57,7 @@ struct LocatingDetailsView: View {
                 }.padding([.horizontal, .top])
                 
                 Button {
-                    vm.showAlert()
+                    showingAlert = true
                 } label: {
                     Text("Clear")
                         .frame(maxWidth: .infinity)
@@ -69,7 +70,7 @@ struct LocatingDetailsView: View {
                 
             }.padding(.bottom)
         }
-        .alert("Confirm to clear?", isPresented: $vm.showingAlert) {
+        .alert("Confirm to clear?", isPresented: $showingAlert) {
             Button("Clear", role: .destructive) {
                 vm.clearSavedParkingLocation()
                 dismiss()
@@ -136,24 +137,20 @@ extension LocatingDetailsView {
     }
     
     private var toolbarItems: some ToolbarContent {
-        Group {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    vm.changeView(isMap: true)
-                }) {
-                    Image(systemName: "map.fill")
-                }
-                .tint(vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
+        ToolbarItemGroup {
+            Button { [weak vm] in
+                vm?.changeView(isMap: true)
+            } label: {
+                Image(systemName: "map.fill")
             }
+            .tint(vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
             
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if vm.headingAvailable {
-                    Button(action: {
-                        vm.changeView(isMap: false)} ) {
-                            Image(systemName: "figure.walk.circle.fill")
-                        }
-                        .tint(!vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
-                }
+            if vm.headingAvailable {
+                Button(action: { [weak vm] in
+                    vm?.changeView(isMap: false)} ) {
+                        Image(systemName: "figure.walk.circle.fill")
+                    }
+                    .tint(!vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
             }
         }
     }

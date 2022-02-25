@@ -56,6 +56,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func stopUpdating() {
+        self.lastLocation = nil
         self.locationManager.stopUpdatingLocation()
     }
     
@@ -68,6 +69,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
             stopUpdating()
         }
     }
+    
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         

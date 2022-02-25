@@ -156,7 +156,6 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
     //    }
     
     func clearLocation() {
-        currentLocation = nil
         stopUpdating()
         stopUpdatingHeading()
         locatingStatus = .idle

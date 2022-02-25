@@ -120,20 +120,4 @@ import CoreLocation
         XCTAssertTrue(vm.address.isNotEmpty)
 
     }
-    
-    func test_LocatingDetailViewModel_showingAlert_shouldBeUpdated() {
-        // Given
-        let locationManager = LocationManager()
-        let mockLocatingStatusService = MockLocationStatusService(locationManager: locationManager)
-        let parkingLocation = CLLocation(latitude: 55.213448, longitude: 20.608194)
-
-        // When
-        let vm = LocatingDetailViewModel(parkingLocation: parkingLocation, locatingStatusService: mockLocatingStatusService)
-        
-        let before = vm.showingAlert
-        vm.showAlert()
-        
-        // Then
-        XCTAssertNotEqual(vm.showingAlert, before)
-    }
 }

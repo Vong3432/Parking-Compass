@@ -13,7 +13,6 @@ import MapKit
 extension HomeView {
     @MainActor class HomeViewModel: ObservableObject {
         
-        @Published private(set) var showingAlert = false
         @Published private(set) var isLocationEnabled = false
         @Published private(set) var locatingStatus = LocatingStatus.idle
         
