@@ -111,6 +111,7 @@ extension HomeView {
             .padding()
             .frame(maxWidth:.infinity, alignment: .leading)
         }
+        .accessibilityIdentifier("BackToVehicle")
         .contentShape(Rectangle())
         .onTapGesture {
             vm.locate()

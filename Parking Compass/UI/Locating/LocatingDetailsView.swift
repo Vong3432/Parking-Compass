@@ -49,6 +49,7 @@ struct LocatingDetailsView: View {
                         Text("My vehicle")
                             .font(.title2)
                             .fontWeight(.heavy)
+                            .accessibilityIdentifier("LocatingDetailsView")
                         Spacer()
                     }
                     
@@ -63,6 +64,7 @@ struct LocatingDetailsView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
+                .accessibilityIdentifier("AlertClearBtn")
                 .background(Color.theme.red)
                 .foregroundStyle(.background)
                 .cornerRadius(12)
@@ -75,7 +77,10 @@ struct LocatingDetailsView: View {
                 vm.clearSavedParkingLocation()
                 dismiss()
             }
+            .accessibilityIdentifier("AlertClearBtnConfirmed")
+            
             Button("Cancel", role: .cancel, action: {})
+                .accessibilityIdentifier("AlertClearBtnCancelled")
         }
         .toolbar {
             toolbarItems

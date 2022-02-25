@@ -39,6 +39,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func getCurrentLocation() {
+        print("Get location")
         changeAccuracy(to: kCLLocationAccuracyNearestTenMeters)
         self.locationManager.requestLocation()
     }
