@@ -33,7 +33,6 @@ struct LocatingDetailsView: View {
         ZStack {
             
             VStack {
-                
                 if vm.isMapView {
                     mapView
                 } else {
@@ -82,8 +81,13 @@ struct LocatingDetailsView: View {
             Button("Cancel", role: .cancel, action: {})
                 .accessibilityIdentifier("AlertClearBtnCancelled")
         }
-        .toolbar {
-            toolbarItems
+        .toolbar{
+            // Ignore leaks, dunno how to fix
+            LocatingToolbarView(
+                isMapView: vm.isMapView,
+                headingAvailable: vm.headingAvailable) { [weak vm] isMapView in
+                    vm?.changeView(isMap: isMapView)
+                }
         }
         .onDisappear {
             vm.stopSubscribing()
@@ -119,7 +123,7 @@ extension LocatingDetailsView {
     
     private var mapView: some View {
         MapView(
-            userLocation: vm.userLocation,
+            userLocation: $vm.userLocation,
             parkingLocation: parkingLocation
         )
             .frame(maxHeight: .infinity)
@@ -139,24 +143,5 @@ extension LocatingDetailsView {
         //                    .frame(width: 44, height: 44)
         //            }
         //        }
-    }
-    
-    private var toolbarItems: some ToolbarContent {
-        ToolbarItemGroup {
-            Button { [weak vm] in
-                vm?.changeView(isMap: true)
-            } label: {
-                Image(systemName: "map.fill")
-            }
-            .tint(vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
-            
-            if vm.headingAvailable {
-                Button(action: { [weak vm] in
-                    vm?.changeView(isMap: false)} ) {
-                        Image(systemName: "figure.walk.circle.fill")
-                    }
-                    .tint(!vm.isMapView ? Color.theme.primary : Color.theme.secondaryText)
-            }
-        }
     }
 }

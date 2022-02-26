@@ -31,7 +31,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func requestPermission() {
-        self.locationManager.requestAlwaysAuthorization()
+        locationManager.requestAlwaysAuthorization()
     }
     
     func changeAccuracy(to accuracy: CLLocationAccuracy) {
@@ -39,26 +39,25 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func getCurrentLocation() {
-        print("Get location")
         changeAccuracy(to: kCLLocationAccuracyNearestTenMeters)
-        self.locationManager.requestLocation()
+        locationManager.requestLocation()
     }
     
     func startUpdatingHeading() {
-        self.locationManager.startUpdatingHeading()
+        locationManager.startUpdatingHeading()
     }
     
     func stopUpdatingHeading() {
-        self.locationManager.stopUpdatingHeading()
+        locationManager.stopUpdatingHeading()
     }
     
     func startUpdating() {
-        self.locationManager.startUpdatingLocation()
+        locationManager.startUpdatingLocation()
     }
     
     func stopUpdating() {
-        self.lastLocation = nil
-        self.locationManager.stopUpdatingLocation()
+        lastLocation = nil
+        locationManager.stopUpdatingLocation()
     }
     
     // delegates
@@ -92,11 +91,10 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print(error.localizedDescription)
+
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        print("New heading is \(newHeading)")
         heading = newHeading
     }
 }

@@ -13,14 +13,14 @@ import Combine
 extension LocatingDetailsView {
     @MainActor class LocatingDetailsViewModel: ObservableObject {
         
-        @Published private(set) var isMapView = true // default must true, otherwise will show compassView for devices that don't support heading
-        @Published private(set) var userLocation: CLLocation = CLLocation()
+        @Published var isMapView = true // default must true, otherwise will show compassView for devices that don't support heading
+        @Published var userLocation: CLLocation = CLLocation()
         @Published private(set) var address = ""
         @Published private(set) var distance: Double?
         @Published private(set) var parkingLocation: CLLocation
         @Published private(set) var degrees = Angle.zero
         @Published private(set) var heading: CLHeading?
-        @Published private(set) var headingAvailable = false
+        @Published var headingAvailable = false
         
         private var locatingStatusService: LocatingStatusServiceProtocol
         
@@ -30,11 +30,9 @@ extension LocatingDetailsView {
             self.parkingLocation = parkingLocation
             self.locatingStatusService = locatingStatusService
             self.locatingStatusService.startUpdating()
-            self.headingAvailable = locatingStatusService.headingAvailable()
+            headingAvailable = locatingStatusService.headingAvailable()
             
-            if !isMapView { subscribeToHeading() }
-            
-            subscribeToLocatingStatusService()
+            self.subscribeToLocatingStatusService()
         }
         
         func stopSubscribing() {
@@ -71,12 +69,9 @@ extension LocatingDetailsView {
                 .sink { [weak self] location in
                     guard let location = location, let self = self else { return }
                     self.userLocation = location
-                    
+
                     if !self.isMapView {
-                        print("Me:", location)
-                        print("P:", self.parkingLocation)
-                        //                        self.calculateUserAngle()
-                        
+
                         if let heading = self.heading {
                             self.doComputeAngleBetweenMapPoints(
                                 fromHeading: heading.trueHeading,
@@ -84,16 +79,16 @@ extension LocatingDetailsView {
                                 self.parkingLocation
                             )
                         }
-                        
+
                         self.calculateDistanceWithCoordinateAltitude(from: location, destination: self.parkingLocation)
                     }
-                    
-                    self.parkingLocation.getAddress { address, error in
+
+                    self.parkingLocation.getAddress { [weak self] address, error in
 
                         guard let address = address else {
                             return
                         }
-                        self.address = address
+                        self?.address = address
                     }
                 }
                 .store(in: &cancellable)
@@ -111,7 +106,7 @@ extension LocatingDetailsView {
             //            let computedDistance = sqrt(pow(distance, 2) + pow(altitude, 2))
             
             let distanceInKM = from.distance(from: destination) / 1000
-            self.distance = distanceInKM
+            distance = distanceInKM
         }
         
         /// Reference: https://stackoverflow.com/a/64809271/10868150
@@ -131,11 +126,10 @@ extension LocatingDetailsView {
             
             let bearing = atan2(x,y)
             let bearingInDegrees = bearing.toDegrees
-            print(bearingInDegrees) // sanity check
             
             let bearingFromMe = bearingInDegrees - fromHeading
             
-            self.degrees = Angle(degrees: bearingFromMe)
+            degrees = Angle(degrees: bearingFromMe)
         }
         
     }

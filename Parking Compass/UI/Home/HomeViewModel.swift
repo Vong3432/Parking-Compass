@@ -58,11 +58,11 @@ extension HomeView {
         
         private func update(
             _ location: Published<CLLocation?>.Publisher.Output,
-            _ isLocationEnabled: Published<Bool>.Publisher.Output,
-            _ locatingStatus: Published<LocatingStatus>.Publisher.Output
+            _ locationEnabled: Published<Bool>.Publisher.Output,
+            _ status: Published<LocatingStatus>.Publisher.Output
         ) {
-            self.isLocationEnabled = isLocationEnabled
-            self.locatingStatus = locatingStatus
+            isLocationEnabled = locationEnabled
+            locatingStatus = status
             
             switch locatingStatus {
             case .idle:
@@ -82,7 +82,6 @@ extension HomeView {
                 print("locating")
             }
         }
-        
 //        private func setCurrentAddress(of location: CLLocation) {
 //            location.getAddress { address, error in
 //                guard let address = address else {
