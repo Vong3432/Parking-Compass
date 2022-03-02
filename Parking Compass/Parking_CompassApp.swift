@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct Parking_CompassApp: App {
-//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var appState = AppState()
     
     var body: some Scene {

@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import Parking_Compass
 
 // Naming structure: test_unitOfWork_stateUnderTest_expectedBehavior
 // Naming structure: test_[struct]_[ui component]_[expectedBehavior]

@@ -14,6 +14,8 @@ enum MenuItem {
 struct ContentView: View {
     @EnvironmentObject private var appState: AppState
     
+    @State private var showingSignInSheet = false
+    
     var body: some View {
         TabView {
             NavigationView {
@@ -25,27 +27,40 @@ struct ContentView: View {
                 Label("My Parking", systemImage: "parkingsign.circle.fill")
             }
             NavigationView {
-                FavouriteView()
+                FavouriteView(
+                    authService: appState.authService,
+                    showLoginSheet: showSignInSheet)
                     .navigationTitle("Favourites")
             }
             .navigationViewStyle(.stack)
             .tabItem {
-                Image(systemName: "star.fill")
                 Label("Favourites", systemImage: "parkingsign.circle.fill")
+                    .accessibilityIdentifier("FavouriteTabBarItem")
             }
             NavigationView {
-                ProfileView()
+                ProfileView(
+                    authService: appState.authService,
+                    showLoginSheet: showSignInSheet
+                )
                     .navigationTitle("Profile")
             }
             .navigationViewStyle(.stack)
             .tabItem {
-                Image(systemName: "person.fill")
-                Label("Profile", systemImage: "parkingsign.circle.fill")
+                Label("Profile", systemImage: "person.fill")
             }
             .navigationBarTitleDisplayMode(.inline)
         }
+        .sheet(isPresented: $showingSignInSheet) {
+            if appState.authService.user != nil { }
+            else {
+                SignInView(authService: appState.authService)
+            }
+        }
         .accentColor(Color.theme.primary)
-
+    }
+    
+    private func showSignInSheet() {
+        showingSignInSheet.toggle()
     }
 }
 

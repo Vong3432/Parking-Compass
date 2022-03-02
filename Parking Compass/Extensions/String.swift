@@ -16,4 +16,8 @@ extension String {
     public var isNotEmpty: Bool {
         !self.isEmpty
     }
+    
+    func firstChar() -> String {
+        return String(self.prefix(1))
+    }
 }

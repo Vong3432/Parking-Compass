@@ -110,3 +110,5 @@ iOSInjectionProject/
 
 **/GoogleService-Info.plist 
 **/google-services.json
+
+env-vars.sh
