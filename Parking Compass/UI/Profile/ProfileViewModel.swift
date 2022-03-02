@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 extension ProfileView {
-    @MainActor class ProfileViewModel: ObservableObject {
+    class ProfileViewModel: ObservableObject {
         @Published var user: User? = nil
         
         private let authService: AuthServiceProtocol

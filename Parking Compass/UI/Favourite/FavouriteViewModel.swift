@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 extension FavouriteView {
-    @MainActor class FavouriteViewModel: ObservableObject {
+    class FavouriteViewModel: ObservableObject {
         @Published var isGuest = true
         
         private let authService: AuthServiceProtocol

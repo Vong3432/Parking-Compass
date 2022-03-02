@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 extension LocatingDetailsView {
-    @MainActor class LocatingDetailsViewModel: ObservableObject {
+    class LocatingDetailsViewModel: ObservableObject {
         
         @Published var isMapView = true // default must true, otherwise will show compassView for devices that don't support heading
         @Published var userLocation: CLLocation = CLLocation()

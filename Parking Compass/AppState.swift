@@ -7,7 +7,7 @@
 
 import Foundation
 
-@MainActor class AppState: ObservableObject {
+class AppState: ObservableObject {
     @Published var locatingStatusService = LocatingStatusService(locationManager: LocationManager())
     var authService = FirebaseAuthService()
 }

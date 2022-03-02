@@ -8,7 +8,7 @@
 import Foundation
 
 extension SignInView {
-    @MainActor class SignInViewModel: ObservableObject {
+    class SignInViewModel: ObservableObject {
         @Published var email: String = "abc"
         @Published var password: String = "abc"
         @Published var errorMsg: String?

@@ -11,7 +11,7 @@ import Combine
 import MapKit
 
 extension HomeView {
-    @MainActor class HomeViewModel: ObservableObject {
+    class HomeViewModel: ObservableObject {
         
         @Published private(set) var isLocationEnabled = false
         @Published private(set) var locatingStatus = LocatingStatus.idle
@@ -21,10 +21,13 @@ extension HomeView {
         @Published var tag: String? = nil
         
         var locatingStatusService: LocatingStatusServiceProtocol
+        private var dataService: LocationDataService
         private var cancellable = Set<AnyCancellable>()
         
-        init(locatingStatusService: LocatingStatusServiceProtocol) {
+        init(locatingStatusService: LocatingStatusServiceProtocol,
+             repositoryProtocol: LocationsRepositoryProtocol? = FirebaseLocationsRepository()) {
             self.locatingStatusService = locatingStatusService
+            self.dataService = LocationDataService(dataRepository: repositoryProtocol!)
             subscribeLocatingStatus()
             preset()
         }
@@ -67,13 +70,13 @@ extension HomeView {
             switch locatingStatus {
             case .idle:
 //                self.currentAddress = ""
-                self.savedLocation = nil
+                savedLocation = nil
             case .saving:
                 guard let location = location else {
                     return
                 }
 
-                self.savedLocation = location
+                savedLocation = location
                 
                 if let data = try? JSONEncoder().encode(location) {
                     try? FileManager.encode(data, to: .savedLocationKey)
