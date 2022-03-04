@@ -36,6 +36,7 @@ final class FirebaseAuthService: AuthServiceProtocol {
     @Published var user: User? = nil
     var userPublisher: Published<User?> { _user }
     var userPublished: Published<User?>.Publisher { $user }
+    private let fdManager = FirebaseDatabaseManager.shared
     
     init() {
         let firebaseSignedUser = Auth.auth().currentUser
@@ -74,6 +75,8 @@ final class FirebaseAuthService: AuthServiceProtocol {
             
             let loggedInUser = User(uniqueId: user.uid, email: user.email, username: user.displayName)
             self.user = loggedInUser
+            self.fdManager.write(loggedInUser, path: FirebaseUsersEndPoint.saveUser(id: loggedInUser.uniqueId).path)
+            
             handler(.success(loggedInUser))
         }
     }

@@ -75,6 +75,7 @@ import CoreLocation
         
         // When
         let vm = HomeViewModel(locatingStatusService: mockLocatingStatusService)
+        vm.preset()
         
         // Then
         XCTAssertNotNil(vm.savedLocation)
@@ -85,6 +86,7 @@ import CoreLocation
         let locationManager = LocationManager()
         let mockLocatingStatusService = MockLocationStatusService(locationManager: locationManager)
         let vm = HomeViewModel(locatingStatusService: mockLocatingStatusService)
+        vm.preset()
         
         // When
         vm.locate()

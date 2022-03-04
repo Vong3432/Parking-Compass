@@ -12,8 +12,13 @@ struct FavouriteView: View {
     @StateObject private var vm: FavouriteViewModel
     let showLoginSheet: () -> Void
     
-    init(authService: AuthServiceProtocol, showLoginSheet: @escaping () -> Void) {
-        _vm = StateObject(wrappedValue: FavouriteViewModel(authService: authService))
+    init(
+        locatingStatusService: LocatingStatusServiceProtocol,
+        authService: AuthServiceProtocol,
+        showLoginSheet: @escaping () -> Void) {
+            _vm = StateObject(wrappedValue: FavouriteViewModel(
+                locatingStatusService: locatingStatusService,
+                authService: authService))
         self.showLoginSheet = showLoginSheet
     }
     
@@ -29,7 +34,11 @@ struct FavouriteView: View {
 struct FavouriteView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            FavouriteView(authService: FirebaseAuthService(), showLoginSheet: {})
+            FavouriteView(
+                locatingStatusService: LocatingStatusService(locationManager: LocationManager(), dataRepository: FirebaseLocationsRepository()),
+                authService: FirebaseAuthService(),
+                showLoginSheet: {}
+            )
                 .navigationTitle("Favourites")
         }
     }
@@ -73,22 +82,18 @@ extension FavouriteView {
     
     private var userFavoriteView: some View {
         ScrollView {
-            
             VStack(spacing: 30) {
                 VStack(alignment: .leading, spacing: 18) {
-                    ForEach(0..<5) { _ in
-                        VStack(spacing: 16) {
-                            HStack {
-                                Image(systemName: "mappin.circle.fill")
-                                    .foregroundColor(.cyan)
-                                Text("123 Jalan Sutera Utama, 2/12 Sutera Utama")
-                                    .font(.body)
-                                Spacer()
-                            }
-                        }
-                        .padding()
-                        .background(Color.theme.background.opacity(0.7))
-                        .cornerRadius(12)
+                    ForEach(vm.locations) { location in
+                        NavigationLink {
+                            LocatingDetailsView(
+                                parkingLocation: location.toCLLocation,
+                                locatingStatusService: vm.locatingStatusService,
+                                shouldShowClearBtn: false
+                            )
+                        } label: {
+                            ParkingLocationRow(location: location)
+                        }.buttonStyle(.plain)
                     }
                 }
             }.padding()

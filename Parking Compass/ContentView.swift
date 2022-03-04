@@ -28,6 +28,7 @@ struct ContentView: View {
             }
             NavigationView {
                 FavouriteView(
+                    locatingStatusService: appState.locatingStatusService,
                     authService: appState.authService,
                     showLoginSheet: showSignInSheet)
                     .navigationTitle("Favourites")

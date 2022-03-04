@@ -27,6 +27,8 @@ enum LocatingStatus {
 }
 
 protocol LocatingStatusServiceProtocol {
+    var dataService: LocationDataService { get }
+    
     var locatingStatus: LocatingStatus { get }
     var locatingStatusPublished: Published<LocatingStatus> { get }
     var locatingStatusPublisher: Published<LocatingStatus>.Publisher { get }
@@ -52,7 +54,7 @@ protocol LocatingStatusServiceProtocol {
     func startUpdating() -> Void
     func stopUpdating() -> Void
     func clearLocation() -> Void
-    //    func changeLocation(to location: CLLocation?) -> Void
+    func changeLocation(to location: CLLocation?) -> Void
     func saveLocation() -> Void
     func locateLocation() -> Void
     
@@ -83,7 +85,11 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
     private var cancellables = Set<AnyCancellable>()
     internal var isHeadingAvailable = false
     
-    init(locationManager: LocationManager) {
+    let dataService: LocationDataService
+    
+    init(locationManager: LocationManager, dataRepository: LocationsRepositoryProtocol) {
+        self.dataService = LocationDataService(dataRepository: dataRepository)
+        
         self.locationManager = locationManager
         self.locationManager.requestPermission()
         isHeadingAvailable = locationManager.headingAvailable()
@@ -102,6 +108,17 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
             .sink { [weak self] (location, status) in
                 
                 guard let self = self else { return }
+                
+                if let cllocation = location, self.locatingStatus == .saving {
+                    cllocation.getAddress { address, error in
+                        self.dataService.save(
+                            Location(
+                                name: address ?? "Parking location",
+                                latitude: cllocation.coordinate.latitude,
+                                longitude: cllocation.coordinate.longitude
+                            ))
+                    }
+                }
                 
                 self.currentLocation = location
                 
@@ -143,17 +160,12 @@ class LocatingStatusService: LocatingStatusServiceProtocol {
         locationManager.getCurrentLocation()
     }
     
-    //    func changeLocation(to location: CLLocation? = nil) {
-    //        if location != nil {
-    //            self.currentLocation = location
-    //            return
-    //        }
-    //
-    //        if locationManager.authorizationStatus != .authorizedAlways || locationManager.authorizationStatus != .authorizedWhenInUse {
-    //            return
-    //        }
-    //        locationManager.getCurrentLocation()
-    //    }
+    func changeLocation(to location: CLLocation? = nil) {
+        if location != nil {
+            currentLocation = location
+            return
+        }
+    }
     
     func clearLocation() {
         stopUpdating()

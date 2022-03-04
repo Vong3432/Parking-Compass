@@ -9,6 +9,8 @@ import Combine
 import MapKit
 
 final class MockLocationStatusService: LocatingStatusServiceProtocol {
+    var dataService: LocationDataService
+    
     @Published private(set) var locatingStatus = LocatingStatus.idle
     var locatingStatusPublished: Published<LocatingStatus> { _locatingStatus }
     var locatingStatusPublisher: Published<LocatingStatus>.Publisher { $locatingStatus }
@@ -31,6 +33,7 @@ final class MockLocationStatusService: LocatingStatusServiceProtocol {
     init(locationManager: LocationManager) {
         self.locationManager = locationManager
         self.locationManager.requestPermission()
+        self.dataService = LocationDataService(dataRepository: MockLocationsRepository())
         isHeadingAvailable = locationManager.headingAvailable()
     }
     
@@ -76,5 +79,8 @@ final class MockLocationStatusService: LocatingStatusServiceProtocol {
         isHeadingAvailable
     }
     
+    func changeLocation(to location: CLLocation?) {
+        currentLocation = location
+    }
     
 }

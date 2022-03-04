@@ -13,9 +13,12 @@ struct LocatingDetailsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: LocatingDetailsViewModel
     let parkingLocation: CLLocation
+    let shouldShowClearBtn: Bool
     @State var showingAlert = false
+    @State var hideBackBtn = true
     
-    init(parkingLocation: CLLocation, locatingStatusService: LocatingStatusServiceProtocol) {
+    init(parkingLocation: CLLocation, locatingStatusService: LocatingStatusServiceProtocol, shouldShowClearBtn: Bool = true) {
+        self.shouldShowClearBtn = shouldShowClearBtn
         self.parkingLocation = parkingLocation
         _vm = StateObject(wrappedValue: LocatingDetailsViewModel(parkingLocation: parkingLocation, locatingStatusService: locatingStatusService))
     }
@@ -56,18 +59,20 @@ struct LocatingDetailsView: View {
                     Text("Floor: \(floor)")
                 }.padding([.horizontal, .top])
                 
-                Button {
-                    showingAlert = true
-                } label: {
-                    Text("Clear")
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                if shouldShowClearBtn {
+                    Button {
+                        showingAlert = true
+                    } label: {
+                        Text("Clear")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    .accessibilityIdentifier("AlertClearBtn")
+                    .background(Color.theme.red)
+                    .foregroundStyle(.background)
+                    .cornerRadius(12)
+                    .padding()
                 }
-                .accessibilityIdentifier("AlertClearBtn")
-                .background(Color.theme.red)
-                .foregroundStyle(.background)
-                .cornerRadius(12)
-                .padding()
                 
             }.padding(.bottom)
         }
@@ -89,16 +94,24 @@ struct LocatingDetailsView: View {
                     vm?.changeView(isMap: isMapView)
                 }
         }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation(.spring()) {
+                    self.hideBackBtn = false
+                }
+            }
+        }
         .onDisappear {
             vm.stopSubscribing()
         }
+        .navigationBarBackButtonHidden(hideBackBtn)
     }
 }
 
 struct LocatingDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            LocatingDetailsView(parkingLocation: CLLocation(latitude: 1.49229000, longitude: 103.58795000), locatingStatusService: LocatingStatusService(locationManager: LocationManager()))
+            LocatingDetailsView(parkingLocation: CLLocation(latitude: 1.49229000, longitude: 103.58795000), locatingStatusService: LocatingStatusService(locationManager: LocationManager(), dataRepository: FirebaseLocationsRepository()))
         }
     }
 }

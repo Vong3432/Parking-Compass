@@ -13,7 +13,7 @@ struct MapView: UIViewRepresentable {
     typealias UIViewType = MKMapView
     
     @Binding var userLocation: CLLocation
-    weak var parkingLocation: CLLocation?
+    var parkingLocation: CLLocation
     
     func makeCoordinator() -> MapViewCoordinator {
         return MapViewCoordinator()
@@ -43,11 +43,6 @@ struct MapView: UIViewRepresentable {
     }
     
     func draw(_ mapView: UIViewType) {
-        guard let parkingLocation = parkingLocation else {
-            return
-        }
-
-        
         // drawing
         let userPlacemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude))
         

@@ -51,6 +51,9 @@ struct HomeView: View {
         }
         .animation(.spring(), value: vm.savedLocation)
         .padding([.vertical])
+        .onAppear {
+            vm.preset()
+        }
     }
     
 }
@@ -58,7 +61,7 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(locatingStatusService: LocatingStatusService(locationManager: LocationManager()))
+        HomeView(locatingStatusService: LocatingStatusService(locationManager: LocationManager(), dataRepository: FirebaseLocationsRepository()))
     }
 }
 

@@ -21,15 +21,13 @@ extension HomeView {
         @Published var tag: String? = nil
         
         var locatingStatusService: LocatingStatusServiceProtocol
-        private var dataService: LocationDataService
+        
         private var cancellable = Set<AnyCancellable>()
         
-        init(locatingStatusService: LocatingStatusServiceProtocol,
-             repositoryProtocol: LocationsRepositoryProtocol? = FirebaseLocationsRepository()) {
+        init(locatingStatusService: LocatingStatusServiceProtocol) {
             self.locatingStatusService = locatingStatusService
-            self.dataService = LocationDataService(dataRepository: repositoryProtocol!)
+            
             subscribeLocatingStatus()
-            preset()
         }
         
         private func subscribeLocatingStatus() {
@@ -41,7 +39,7 @@ extension HomeView {
         
         
         /// Ensure view model capture latest state from global service
-        private func preset() {
+        func preset() {
             locatingStatus = locatingStatusService.locatingStatus
             
             // load local data
