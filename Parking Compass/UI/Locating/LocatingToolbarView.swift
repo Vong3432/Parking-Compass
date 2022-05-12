@@ -14,22 +14,21 @@ struct LocatingToolbarView: ToolbarContent {
     var onPress: ((Bool) -> Void)?
     
     var body: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
             Button {
-                onPress?(false)
+                onPress?(true)
             } label: {
                 Image(systemName: "map.fill")
             }
             .tint(isMapView ? Color.theme.primary : Color.theme.secondaryText)
             
-            if headingAvailable {
-                Button {
-                    onPress?(true)
-                } label: {
-                    Image(systemName: "figure.walk.circle.fill")
-                }
-                .tint(!isMapView ? Color.theme.primary : Color.theme.secondaryText)
+            Button {
+                onPress?(false)
+            } label: {
+                Image(systemName: "figure.walk.circle.fill")
             }
+            .disabled(!headingAvailable)
+            .tint(!isMapView ? Color.theme.primary : Color.theme.secondaryText)
         }
     }
 }

@@ -34,7 +34,7 @@ struct HomeView: View {
             
             Spacer()
             
-            if vm.savedLocation == nil {
+            if vm.savedLocation == nil && !vm.isSavingLocation {
                 LocationButton(.currentLocation) {
                     vm.save()
                 }
@@ -46,6 +46,10 @@ struct HomeView: View {
                 .cornerRadius(50)
                 .padding(.bottom)
                 .padding(.bottom)
+            }
+            
+            if vm.isSavingLocation {
+                ProgressView()
             }
             
         }

@@ -14,6 +14,7 @@ extension HomeView {
     class HomeViewModel: ObservableObject {
         
         @Published private(set) var isLocationEnabled = false
+        @Published private(set) var isSavingLocation = false
         @Published private(set) var locatingStatus = LocatingStatus.idle
         
         @Published private(set) var savedLocation: CLLocation?
@@ -75,6 +76,7 @@ extension HomeView {
                 }
 
                 savedLocation = location
+                isSavingLocation = false
                 
                 if let data = try? JSONEncoder().encode(location) {
                     try? FileManager.encode(data, to: .savedLocationKey)
@@ -93,6 +95,7 @@ extension HomeView {
 //        }
         
         func save() {
+            isSavingLocation = true
             locatingStatusService.saveLocation()
         }
         
